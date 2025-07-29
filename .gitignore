@@ -13,4 +13,4 @@ jcd.sty
 *.fls
 arxiv.tgz
 arxiv/
-!Figures/*.pdf
+!Images/*.pdf
