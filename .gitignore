@@ -1,0 +1,16 @@
+bib.bib
+jcd.sty
+*~
+*.pdf
+*.aux
+*.gz
+*.toc
+*.bbl
+*.blg
+*.log
+*.out
+*.fdb*
+*.fls
+arxiv.tgz
+arxiv/
+!Figures/*.pdf
