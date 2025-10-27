@@ -14,7 +14,7 @@
 %
 % to avoid loading the natbib package, add option nonatbib:
 %    \usepackage[nonatbib]{neurips_2023}
-\usepackage[nonatbib]{neurips_2025}
+\usepackage[final,nonatbib]{neurips_2025}
 \usepackage{macros-neurips}
 \bluehyperref
 \usepackage{xr}
@@ -68,12 +68,12 @@
   %
   In addition, we directly consider (approximate) conditional coverage,
   where, e.g., conditional on a covariate $X$ belonging to some
-  group of interest, we would like a guarantee that a predictive set
+  group of interest, we seek a guarantee that a predictive set
   covers the true outcome $Y$.
   %
   We show that the natural method of performing quantile regression on a
   held-out (validation) dataset yields minimax optimal guarantees of
-  coverage here.
+  coverage in these cases.
   %
   Complementing these positive results, we also provide experimental
   evidence highlighting work that remains to develop
@@ -158,14 +158,13 @@ function of $(X_i, Y_i)_{i = 1}^n$, then for $P$-almost-all $x$,
   \P(Y_{n + 1} \in \what{C}_n(X_{n + 1}) \mid X_{n + 1} = x) \ge 1 - \alpha.
 \end{equation}
 %
-This is impossible.
+\citet{Vovk12} shows this is impossible.
 %
-For example, when $\mc{Y} = \R$,
-\citet[Proposition 4]{Vovk12} shows that
-the Lebesgue measure $\mathsf{Leb}(\what{C}(x))$ is almost always infinite
-(see also extensions in~\cite{BarberCaRaTi21a}
+For example, when $\mc{Y} = \R$, the Lebesgue measure
+$\mathsf{Leb}(\what{C}(x))$ is almost always infinite~\cite[Proposition
+  4]{Vovk12} (see also extensions in~\cite{BarberCaRaTi21a}
 and~\cite[Corollary 7.1]{DuchiGuJiSu24}):
-\begin{corollary}
+\begin{corollary}[\cite{Vovk12, BarberCaRaTi21a, DuchiGuJiSu24}]
   Let $\mc{X}$ be a metric space and assume $X \in \mc{X}$ has
   continuous distribution.
   %
@@ -195,7 +194,7 @@ coverage~\eqref{eqn:group-conditional} by considering worst-case coverage
 over groups $G$; \citet{JungNoRaRo23} provide
 variations. %% (see also the next section).
 %
-\citet*{GibbsChCa23} extend this idea, beginning by observing that
+\citet*{GibbsChCa25} extend this idea, beginning by observing that
 conditional coverage $\P(Y \in \what{C}(x) \mid X = x) = 1 - \alpha$
 holds if and only if
 \begin{equation}
@@ -218,8 +217,8 @@ Taking $w(x) = \indic{x \in G}$ for groups $G \subset \mc{X}$ implies the
 group-conditional coverage~\eqref{eqn:group-conditional}; relaxing the
 condition~\eqref{eqn:weighted-coverage} by considering subclasses of
 weighting functions $\mc{W} \subset \{\mc{X} \to \R\}$ leads to the
-following definition~\cite{GibbsChCa23}:
-\begin{definition}
+following definition~\cite{GibbsChCa25}:
+\begin{definition}[Gibbs et al.~\cite{GibbsChCa25}]
   \label{definition:weighted-coverage}
   A confidence set $C : \mc{X} \toto \mc{Y}$ achieves
   \emph{$\mc{W}$-weighted $((1 - \alpha), \epsilon)$ coverage} if
@@ -242,7 +241,7 @@ following definition~\cite{GibbsChCa23}:
 \end{definition}
 %% \noindent
 %% In Definition~\ref{definition:weighted-coverage}, we take the
-%% confidence set mapping $C$ to be fixed; \citeauthor{GibbsChCa23}
+%% confidence set mapping $C$ to be fixed; \citeauthor{GibbsChCa25}
 %% allow $\what{C}$ to be random, in which case (in their definition)
 %% the expectation is taken also over the $\what{C}$ itself.
 %% %
@@ -250,7 +249,7 @@ following definition~\cite{GibbsChCa23}:
 %% used to construct $\what{C}$, we maintain
 %% Definition~\ref{definition:weighted-coverage}.
 
-\citeauthor{GibbsChCa23}'s main two examples take $\mc{W}$
+\citeauthor{GibbsChCa25}'s main two examples take $\mc{W}$
 of the form $\mc{W} = \{w \mid w(x) = \<v,
 \phi(x)\>\}$ for some feature mapping $\phi : \mc{X} \to \R^d$ or
 to correspond to a reproducing kernel Hilbert space.
@@ -273,11 +272,11 @@ then define the implicit confidence set
     y)}(X_{n + 1}) \right\}.
   \label{eqn:implicit-full-confidence-set}
 \end{equation}
-A careful duality calculation~\cite[Sec.~4]{GibbsChCa23}
+A careful duality calculation~\cite[Sec.~4]{GibbsChCa25}
 shows how to compute $\what{C}_n$ by solving a linear program
 over $O(n + d)$ variables using $(X_i)_{i = 1}^{n + 1}$
-and $\scorerv_1^n$,
-and \citeauthor{GibbsChCa23}
+and $\scorerv_1^n = (\scorerv_1, \ldots, \scorerv_n)$,
+and \citeauthor{GibbsChCa25}
 show the set~\eqref{eqn:implicit-full-confidence-set}
 satisfies
 %% \begin{equation*}
@@ -336,7 +335,7 @@ fit a constant threshold $\what{\tau}_n$ and use
 $\what{C}_n(x) = \{y \in \mc{Y} \mid \scorefunc(x, y) \le
 \what{h}_n(x) + \what{\tau}_n\}$.
 %% To address this, more recent
-%% work~\cite{RomanoPaCa19,CauchoisGuDu21,JungNoRaRo23, GibbsChCa23} considers
+%% work~\cite{RomanoPaCa19,CauchoisGuDu21,JungNoRaRo23, GibbsChCa25} considers
 %% \emph{adaptive} choices of the threshold $\tau$ that may depend on $x$, that
 %% is, $C(x) = \{y \mid \scorefunc(x, y) \le \tau(x)\}$, reflecting that
 %% ``difficult'' examples $X$ may require larger confidence sets than ``easy''
@@ -545,7 +544,7 @@ and~\ref{sec:intro-sample-conditional}, we revisit conditional coverage,
 but we do so conditional on the sample $P_n$ as well.
 %
 To do this, we consider Jung et al.\ and Gibbs et al.'s
-approaches~\citep{JungNoRaRo23,GibbsChCa23}, considering
+approaches~\citep{JungNoRaRo23,GibbsChCa25}, considering
 quantile estimation via the quantile loss~\citep{KoenkerBa78},
 which for $\alpha > 0$ is
 \begin{equation*}
@@ -568,7 +567,7 @@ $\poploss(t) \defeq \E[\loss_\alpha(t - Y)]$.
 %% (When $Y$ has point masses, a minor extension of this
 %% argument shows that $\quant_{1 - \alpha}(Y)$ remains a minimizer.)
 %
-Now (cf.~\cite{GibbsChCa23, JungNoRaRo23}), consider a
+Now (cf.~\cite{GibbsChCa25, JungNoRaRo23}), consider a
 quantile regression of attempting to predict $\scorerv \in \R$ from $X \in
 \mc{X}$.
 %
@@ -589,14 +588,14 @@ conditional on $X = x$, we see that
 \end{align*}
 Now let $\theta\opt \in \argmin \poploss(\theta)$ be a population minimizer.
 %
-Then, as \citet{GibbsChCa23} note, for \emph{any} $u \in \R^d$, we have
+Then, as \citet{GibbsChCa25} note, for \emph{any} $u \in \R^d$, we have
 \begin{equation*}
   0 = \<u, \nabla \poploss(\theta\opt)\>
   = \E\left[\left(\P(\scorerv < \<\theta\opt, \phi(X)\> \mid X)
     - (1 - \alpha)\right) \cdot \<u, \phi(X)\> \right].
 \end{equation*}
 This connects transparently to confidence set
-mappings~\cite{GibbsChCa23,JungNoRaRo23}: taking
+mappings~\cite{GibbsChCa25,JungNoRaRo23}: taking
 \begin{equation*}
   \scorerv = \scoreval(X, Y)
   ~~ \mbox{and} ~~
@@ -606,14 +605,15 @@ mappings~\cite{GibbsChCa23,JungNoRaRo23}: taking
 we have
 \begin{align*}
   0 = \E\left[\left(\P(Y \in C(X) \mid X) - (1 - \alpha)\right)
-    \<u, \phi(X)\>\right] = 0
+    \<u, \phi(X)\>\right]
   ~~ \mbox{for~all~} u \in \R^d.
 \end{align*}
-In turn, this implies the population coverage guarantee
-\begin{corollary}
+In turn, \citet{GibbsChCa25} show this implies the population coverage guarantee
+\begin{corollary}[Gibbs et al.~\cite{GibbsChCa25}, Thm.~2]
   \label{corollary:population-weighted-coverage}
-  Assume the distribution of $\scorerv$ conditional on $X = x$ has no atoms
-  for each $x \in \mc{X}$. Let $\theta\opt$ minimize $\poploss(\theta) =
+  Assume the distribution of $\scorerv \mid X$ is continuous.
+  %
+  Let $\theta\opt$ minimize $\poploss(\theta) =
   \E[\loss_\alpha(\<\theta, \phi(X)\> - \scoreval(X, Y))]$.
   %
   Then $C_{\theta\opt}$ provides $((1 - \alpha), 0)$-weighted coverage
@@ -722,7 +722,7 @@ We defer the proof of Theorem~\ref{theorem:approximate-conditional-coverage}
 to Section~\ref{sec:proof-approximate-conditional-coverage}.
 %
 We also note in passing that by randomizing, it is possible to make
-the scores distinct without sacrificing coverage~\cite[cf.][]{GibbsChCa23}.
+the scores distinct without sacrificing coverage~\cite[cf.][]{GibbsChCa25}.
 
 %% Translating things to guarantee (nearly) exact coverage and distinct scores
 %% even when the naive scores may not be distinct, we can
@@ -795,12 +795,12 @@ provides.
 %% $\what{C}(X_{n+1}) = \{y \mid \scoreval(X_{n+1}, y) \le
 %% \what{h}_{n+1}(X_{n+1})\}$.
 %
-The construction~\eqref{eqn:implicit-full-confidence-set} appears
+The construction~\eqref{eqn:implicit-full-confidence-set}
 appears to obtain better coverage than the more basic approaches
-here~\cite[Fig.~3]{GibbsChCa23}, but it can be more
-computationally challenging~\cite[Fig.~6]{GibbsChCa23}.
+here~\cite[Fig.~3]{GibbsChCa25}, but it can be more
+computationally challenging~\cite[Fig.~6]{GibbsChCa25}.
 %
-\citet{GibbsChCa23} show that a randomized version of their
+\citet{GibbsChCa25} show that a randomized version of their
 procedure~\eqref{eqn:implicit-full-confidence-set} achieves
 \begin{equation*}
   \P(Y_{n + 1} \in \what{C}_n(X_{n+1}) \mid X_{n + 1} \in G)
@@ -1205,6 +1205,7 @@ of groups $\mc{G} \subset 2^{\mc{X}}$, and the feature mapping $\phi(x) =
 (\indic{x \in G})_{G \in \mc{G}}$, we have the following sharpening
 of Theorem~\ref{theorem:approximate-conditional-coverage}.
 \begin{corollary}
+  \label{corollary:group-conditional-teenager}
   Assume that $\phi(x) = (\indic{x \in G})_{G \in \mc{G}}$,
   and let $d = \card(\mc{G})$.
   Then with probability at least
@@ -1268,25 +1269,36 @@ The next theorem provides an exemplar result.
 The conclusion is weaker than that of Theorem~\ref{theorem:one-sided-sharp},
 as it replaces $\sqrt{\radphi(u) \E[\<u, \phi(X)\>]}$ with $\radphi(u)$.
 
-These convergence guarantees are sharp to within logarithmic factors,
-and capture the correct dependence on $\alpha$ and the
-weight functions $\mc{W}$.
+\subsection{Minimax optimality}
+
+The convergence guarantees in Theorems~\ref{theorem:one-sided-sharp}
+and~\ref{theorem:two-sided-sharp} are sharp to within logarithmic factors,
+and capture the correct dependence on $\alpha$ and the weight functions
+$\mc{W}$.
+%
+Indeed, \citet{ArecesChDuKu24} develop a set of lower bounds
+that apply to VC-classes of functions $\mc{W}$,
+where they show the following.
 %
 Assume that the estimated confidence set $\what{C}_n$ takes the form
 $\what{C}_n(x) = \{y \mid \scoreval(x, y) \le \what{h}(x)\}$ or
 $\what{C}_n(x) = \{y \mid \what{a}(x) \le \scoreval(x, y) \le \what{b}(x)\}$
 for \emph{some} estimated functions $\what{h}$, $\what{a}$, or $\what{b}$.
 %
-\citet{ArecesChDuKu24} show that for \emph{any} class of functions $\mc{W}$
-mapping $\mc{X}$ to $\{\pm 1\}$ with VC-dimension $d$, there exists a
-sampling distribution $P$ for which $\scorerv \mid X$ has a continuous
-density and such that with constant probability over the draw of $P_n$,
-\begin{equation*}
-  \left|\E\left[w(X_{n + 1}) \indic{Y_{n + 1} \not \in \what{C}_n(X_{n+1})}
-    - w(X_{n + 1}) \alpha  \mid P_n \right]\right|
-  \ge c \sqrt{\frac{d \alpha(1 - \alpha)}{n}},
-\end{equation*}
-where $c > 0$ is a universal constant.
+\begin{corollary}[Areces et al.~\cite{ArecesChDuKu24}, Thm.~1]
+  Let $\mc{W}$ be any class of functions mapping $\mc{X}$ to $\{\pm 1\}$
+  with VC-dimension $d$, $\what{C}_n$ take either of the forms above.
+  %
+  Then there exists a sampling distribution $P$ for which $\scorerv \mid X$
+  has continuous bounded density and such that with constant probability
+  over the draw of $P_n$,
+  \begin{equation*}
+    \left|\E\left[w(X_{n + 1}) \indic{Y_{n + 1} \not \in \what{C}_n(X_{n+1})}
+      - w(X_{n + 1}) \alpha  \mid P_n \right]\right|
+    \ge c \sqrt{\frac{d \alpha(1 - \alpha)}{n}},
+  \end{equation*}
+  where $c > 0$ is a universal constant.
+\end{corollary}
 %
 To compare this with Theorems~\ref{theorem:one-sided-sharp}
 and~\ref{theorem:two-sided-sharp}, let $\{G_1, \ldots, G_d\}$, $G_j \subset
@@ -1351,7 +1363,7 @@ new guarantees are evidently optimal.
 
 Our main purpose has been to investigate conditional quantile estimation
 procedures, providing theoretical bounds for their performance; there is
-already practical experience with these methods~\cite{GibbsChCa23}.
+already practical experience with these methods~\cite{GibbsChCa25}.
 %
 We thus provide an
 exploratory experiment on the CIFAR-100
@@ -1420,7 +1432,7 @@ and some with the split conformal methodology, but all
 around the nominal (desired) 90\% coverage level.
 %
 Finally, the split conformal methods slightly undercover marginally,
-while the full conformal method slighlty overcovers marginally.
+while the full conformal method slightly overcovers marginally.
 
 
 \begin{figure}
@@ -1442,8 +1454,10 @@ while the full conformal method slighlty overcovers marginally.
 \section{Conclusion and discussion}
 
 The results in our experiments, though they are relatively small scale,
-appear to be consistent with other experiments we do not present for
-brevity.
+appear to be consistent with other experiments on regression
+that we present in Appendix~\ref{sec:further-simulations}, where
+we also investigate the appropriate choice of the level $\alpha$
+to obtain a desired coverage level coverage.
 %
 In brief: split conformal methods with confidence sets using adaptive
 thresholds of the form $\what{C}(x) = \{y \mid \scoreval(x, y) \le
@@ -1461,7 +1475,7 @@ as well as minimax optimality.
 In spite of this, when the adaptive threshold
 $\what{h}(x)$ comes from a class of functions that is high-dimensional
 relative to the size of the data available for calibration,
-these methods can undercover, as they exhibit downard bias in their
+these methods can undercover, as they exhibit downward bias in their
 coverage.
 %
 This bias is easy to correct for a static threshold
@@ -1469,15 +1483,78 @@ $\what{C}(x) = \{y \mid \scoreval(x, y) \le \what{\tau}\}$ by
 simply using a slightly larger quantile, however, it is
 unclear how to address it in adaptive scenarios.
 %
-This makes obtaining a data-adaptive way to compute the coverage bias,
-either marginally or along various splits of the validation data,
-substantially interesting and a natural direction for future work.
+This makes obtaining a data-adaptive way to compute coverage bias an open
+and important research question: can we avoid the $\sqrt{n}$ error in each
+of the conditional coverage guarantees?
+%
+As \citet[Thm.~2]{GibbsChCa25} show, ``full conformal''
+methodshave errors scaling as $O(d/n)$ in these cases, while the methods in
+the current paper have a downward coverage bias that appears to scale
+with $\sqrt{d/n}$.
+%
+This is, of course, worse, and delineating the extent to
+which this bias matters remains open.
+
+Certainly, the minimax lower bounds that \citet{ArecesChDuKu24} demonstrate
+show that it is impossible to achieve anything improving on
+$\sqrt{d/n}$ error for two-sided guarantees, but if we
+\emph{only} wish to demonstrate
+weighted coverage lower bounds
+$\P_w(Y_{n + 1} \in \what{C}_n(X_{n+1}) \mid P_n) \ge 1 - \alpha
+- O(1) \frac{d \log(1/\delta)}{n}$,
+then it may be possible to achieve one-sided guarantees without
+such errror.
+%
+One approach, which \citet{CauchoisGuDu21} adopt, is to split the
+validation sample to ``re-conformalize'' the confidence sets, so that the
+only concentration one needs is on a single threshold being learned.
+%
+This would mean fitting a confidence set $C(x) = \{ y \mid \scoreval(x, y)
+\le \what{h}(x)\}$ on one validation sample, and on the second, modifying a
+single threshold $\what{\tau}$ to fit $\what{C}(x) = \{y \mid \scoreval(x,
+y) \le \what{h}(x) + \what{\tau}\}$; this, however, would not provide any
+approximate conditional guarantees.
+%
+It seems plausible that one might instead be able to use leave-one-out
+sampling to estimate this downward bias~\cite{EfronSt81, BarberCaRaTi21}.
 %
 Identifying such an offline correction without relying on asymptotic error
 calculations, as our heuristic development in
 Appendix~\ref{sec:further-simulations} does, could make these procedures
 substantially more practical, by both enjoying the test-time speed of split
 conformal methods and the coverage accuracy of full-conformal procedures.
+
+A second set of open questions relates to the experiments.
+%
+While we have been careful to identify them as ``exploratory'' (because the
+main focus of this paper is theoretical), they do not directly address the
+sample-conditional aspects (i.e., coverage given $P_n$) of the guarantees so
+much as the ``$\phi$--conditional'' guarantees (or, perhaps, group-wise
+guarantees), as in Theorem~\ref{theorem:two-sided-sharp} and
+Corollary~\ref{corollary:group-conditional-teenager}.
+%
+It would be (to the author at least) quite interesting to understand whether
+sample-conditional coverage is practically relevant,
+especially relative to the marginal coverage guarantees full-conformal inference provides.
+%
+\citet{BianBa22} provide a counterexample showing that there exist cases
+where full-conformal methods are quite unstable.
+%
+But understanding the extent to which this is practically meaningful would
+require experimental work that is beyond the current focus of this
+paper.
+
+\section*{Acknowledgments}
+
+This research was supported in part by the National Science Foundation under
+grant IIS-2006777 and the Office of Naval Research under grant ONR
+N00014-22-1-2669.
+%
+I also wish to thank John Cherian for many stimulating conversations about
+this paper, the students in the Statistics 315a at Stanford in the winter of
+2025, whose questions inspired this work, and several anonymous reviewers,
+whose investigation of the paper improved its presentation, helped to
+identify open questions, and (hopefully) led to a clearer paper.
 
 \bibliography{bib}
 \bibliographystyle{abbrvnat}
@@ -1874,7 +1951,7 @@ Proposition~\ref{proposition:distinct-scores}.
   and~\ref{theorem:two-sided-sharp}}
 \label{sec:proof-sharp}
 
-We split the proof into three sections, first giving the shsared
+We split the proof into three sections, first giving the shared
 building blocks, then specializing.
 
 \subsection{Proof of Theorems~\ref{theorem:one-sided-sharp}
@@ -2604,7 +2681,7 @@ allowing some additional performance gains, while simultaneously
 exhibiting the need for future work.
 %
 We consider mostly the difference between the full conformal approach that
-\citet{GibbsChCa23} develop and the split-conformal approaches
+\citet{GibbsChCa25} develop and the split-conformal approaches
 that simply minimize the empirical
 loss~\eqref{eqn:empirical-quantile-estimator}.
 %
@@ -2705,7 +2782,7 @@ a standard Gaussian linear model, where we observe
   ~~ \noise_i \simiid \normal(0, 1)
   ~~ \mbox{and} ~~ x_i \simiid \normal(0, I_d).
 \end{equation*}
-We mimic the experiment \citet[Fig.~3]{GibbsChCa23} provide,
+We mimic the experiment \citet[Fig.~3]{GibbsChCa25} provide,
 but we investigate the coverage properties of the
 coverage set from the estimator~\eqref{eqn:empirical-quantile-estimator}
 with uncorrected $\alpha$ and level $\alpha$ corrected
@@ -2763,7 +2840,7 @@ is more effective.
 
 We briefly look at the coverage properties of the full conformalization
 method~\eqref{eqn:implicit-full-confidence-set} from the
-paper~\citep{GibbsChCa23}, comparing with split-conformal
+paper~\citep{GibbsChCa25}, comparing with split-conformal
 methods~\eqref{eqn:empirical-quantile-estimator}, on a synthetic regression
 dataset we design to have asymmetric mean-zero heteroskedastic noise.
 %
@@ -2949,11 +3026,10 @@ one of computational feasibility.
 
 \item {\bf Open access to data and code}
     \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
-    \item[] Answer: \answerNo{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
-    \item[] Justification: While our code is simple---so that
-      it should be fairly easy to reduce---we honestly ran out of time
-      before the deadline to upload an anonymized copy. We will
-      release the code in non-anonymized form.
+    \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: The code is available, along with the
+      paper, at the public repository
+      \url{https://github.com/jduchi/cond-conformal}.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer NA means that paper does not include experiments requiring code.
@@ -2970,7 +3046,8 @@ one of computational feasibility.
 \item {\bf Experimental setting/details}
     \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer, etc.) necessary to understand the results?
     \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
-    \item[] Justification:
+    \item[] Justification: The code to reproduce the experiments is
+      available at \url{https://github.com/jduchi/cond-conformal}.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer NA means that the paper does not include experiments.
@@ -2981,7 +3058,7 @@ one of computational feasibility.
 \item {\bf Experiment statistical significance}
     \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
     \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
-    \item[] Justification: \justificationTODO{}
+    \item[] Justification:
     \item[] Guidelines:
     \begin{itemize}
         \item The answer NA means that the paper does not include experiments.
