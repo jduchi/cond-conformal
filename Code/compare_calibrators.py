@@ -117,9 +117,46 @@ def predict_split_conformal(X_val, y_val, X_test, poly, reg, Phi_function,
 
     return (lbs, ubs)
 
-def plot_single_calibration_comparison(dim_disc : int, n_val : int,
-                                       alpha : float = .1,
-                                       alpha_correction = True, seed = 0):
+
+def plot_naive_calibration(dim_disc : int, n_val : int,
+                           alpha : float = .1,
+                           seed = 0,
+                           filename : str = None):
+    """Plots the naive calibration method when we just use a single
+    correction term
+
+    """
+    (X_train, y_train, X_val, y_val, X_test, y_test) = \
+        synthetic_cqr_data.generate_sinusoid_data(seed = seed, n_val = n_val,
+                                                  n_disc = dim_disc,
+                                                  n_train = 200)
+    (theta_0, theta_1, phi_0, phi_1) = \
+        synthetic_cqr_data.generate_sinusoid_function(seed)
+    f_val = theta_0 * np.cos(phi_0 * X_val) + theta_1 * np.sin(phi_1 * X_val)
+    (lbs, ubs) = naive_split_predictions(X_train, y_train, X_val, y_val,
+                                         X_test, alpha = alpha)
+    plt.figure(figsize = (12, 6))
+    plt.plot(X_val.squeeze(), f_val, "k-")
+    plt.plot(X_test.squeeze(), y_test, "k.")
+    plt.fill_between(X_test.squeeze(), y1=lbs, y2=ubs)
+    # Now, let's tighten up the plot axes
+    x_min = 0.0
+    x_max = 1.0
+    y_test_sorted = np.sort(y_test)
+    y_min = y_test_sorted[1] - .05
+    y_max = y_test_sorted[len(y_test_sorted) - 2] + .05
+    plt.axis([x_min, x_max, y_min, y_max])
+    plt.axis("off")
+    if (filename is not None):
+        plt.savefig(filename, bbox_inches = "tight")
+    else:
+        plt.show()
+    plt.close()
+
+def plot_discretized_calibration(dim_disc : int, n_val : int,
+                                 alpha : float = .1,
+                                 alpha_correction = True, seed = 0,
+                                 filename : str = None):
     (X_train, y_train, X_val, y_val, X_test, y_test) = \
         synthetic_cqr_data.generate_sinusoid_data(seed = seed, n_val = n_val,
                                                   n_disc = dim_disc,
@@ -129,10 +166,45 @@ def plot_single_calibration_comparison(dim_disc : int, n_val : int,
         alpha = alpha, alpha_correction = alpha_correction,
         dim_disc = dim_disc)
 
-    # This is dirty rotten cheating... but that's fine
-    rng = np.random.default_rng(seed)
-    (theta_0, theta_1) = (2 * rng.random(2) - 1)
-    (phi_0, phi_1) = (3.75 * np.pi + np.pi / 4) * rng.random(2)
+    (theta_0, theta_1, phi_0, phi_1) = \
+        synthetic_cqr_data.generate_sinusoid_function(seed)
+    f_val = theta_0 * np.cos(phi_0 * X_val) + theta_1 * np.sin(phi_1 * X_val)
+    plt.figure(figsize=(12,6))
+
+    plt.plot(X_val.squeeze(), f_val, "k-")
+    plt.plot(X_test.squeeze(), y_test, "k.")
+    plt.fill_between(X_test.squeeze(), y1=lbs_off, y2=ubs_off)
+    # Now, plot some slices for the discretization
+    disc_levels = np.linspace(1/dim_disc, 1 - 1/dim_disc, dim_disc-1)
+    y_min = np.min(lbs_off)
+    y_max = np.max(ubs_off)
+    for ii in range(0, dim_disc-1):
+        plt.plot([disc_levels[ii], disc_levels[ii]],
+                 [y_min, y_max], "--", color="gray")
+    # Re-axis figure (tighten axis)
+    plt.axis([0, 1, y_min, y_max])
+    plt.axis("off")
+    if (filename is not None):
+        plt.savefig(filename, bbox_inches="tight")
+    else:
+        plt.show()
+    plt.close()
+    
+def plot_single_calibration_comparison(dim_disc : int, n_val : int,
+                                       alpha : float = .1,
+                                       alpha_correction = True, seed = 0,
+                                       filename : str = None):
+    (X_train, y_train, X_val, y_val, X_test, y_test) = \
+        synthetic_cqr_data.generate_sinusoid_data(seed = seed, n_val = n_val,
+                                                  n_disc = dim_disc,
+                                                  n_train = 200)
+    (lbs, ubs, lbs_off, ubs_off, disc) = full_split_predictions(
+        X_train, y_train, X_val, y_val, X_test,
+        alpha = alpha, alpha_correction = alpha_correction,
+        dim_disc = dim_disc)
+
+    (theta_0, theta_1, phi_0, phi_1) = \
+        synthetic_cqr_data.generate_sinusoid_function(seed)
     f_val = theta_0 * np.cos(phi_0 * X_val) + theta_1 * np.sin(phi_1 * X_val)
 
     fig, axs = plt.subplots(1, 2, figsize=(12, 6))
@@ -144,9 +216,48 @@ def plot_single_calibration_comparison(dim_disc : int, n_val : int,
     axs[0].fill_between(X_test.squeeze(), y1 = lbs, y2 = ubs)
     # Plot the split method
     axs[1].fill_between(X_test.squeeze(), y1 = lbs_off, y2 = ubs_off)
+    # Now maybe we ought to tighten the axes
+    min_y = min(np.min(lbs), np.min(lbs_off))
+    max_y = max(np.max(ubs), np.max(ubs_off))
+    axs[0].axis([0., 1., min_y, max_y])
+    axs[1].axis([0., 1., min_y, max_y])
     plt.tight_layout()
-    plt.show()
+    if (filename is not None):
+        plt.savefig(filename, bbox_inches="tight")
+    else:
+        plt.show()
+    plt.close()
 
+def naive_split_predictions(X_train, y_train, X_val, y_val, X_test,
+                            alpha : float = .1,
+                            maximum_x : float = 1.0,
+                            num_poly_features : int = 5):
+    """Returns vectors of the split predictions using only a single scalar
+    threshold for the confidence set on the given data
+
+    Constructs a confidence set using standard split conformal on a
+    fit polynomial regression with num_poly_features features. The
+    coverage level is 1 - alpha.
+    
+    Returns a 2-tuple of
+
+      (lbs, ubs)
+
+    of the estimated lower and upper bounds (lbs and ubs,
+    respectively) for the split conformal method.
+
+    """
+    poly = PolynomialFeatures(num_poly_features)
+    reg = LinearRegression().fit(poly.fit_transform(X_train), y_train)
+
+    def Phi_function(x):
+        return np.zeros(x.shape)
+
+    (lbs, ubs) = predict_split_conformal(
+        X_val, y_val, X_test, poly, reg, Phi_function,
+        alpha = alpha)
+    return (lbs, ubs)
+    
 def full_split_predictions(X_train, y_train,
                                X_val, y_val, X_test,
                                dim_disc : int,

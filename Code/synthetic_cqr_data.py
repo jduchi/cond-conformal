@@ -5,6 +5,19 @@
 
 import numpy as np
 
+def generate_sinusoid_function(seed : int = 0):
+    """Returns parameters for sinusoidal function
+
+    Returns the parameters (theta_0, theta_1, phi_0, phi_1) for a function
+    of the form
+
+    f(x) = theta_0 * cos(phi_0 * x) + theta_1 * sin(phi_1 * x)
+    """
+    rng = np.random.default_rng(seed)
+    (theta_0, theta_1) = (2 * rng.random(2) - 1)
+    (phi_0, phi_1) = (3.75 * np.pi + np.pi / 4) * rng.random(2)
+    return (theta_0, theta_1, phi_0, phi_1)
+
 def generate_sinusoid_data(seed : int = 0, n_val : int = 100,
                            n_test : int = 500, n_train : int = 200,
                            n_disc : int = 5):
@@ -36,9 +49,8 @@ def generate_sinusoid_data(seed : int = 0, n_val : int = 100,
     and, accordingly, p = lambda_0 / (lambda_1 + lambda_0).
     
     """
+    (theta_0, theta_1, phi_0, phi_1) = generate_sinusoid_function(seed)
     rng = np.random.default_rng(seed)
-    (theta_0, theta_1) = (2 * rng.random(2) - 1)
-    (phi_0, phi_1) = (3.75 * np.pi + np.pi / 4) * rng.random(2)
     x_train = np.linspace(1 / (2 * n_train), 1 - 1 / (2 * n_train), n_train)
     x_test = np.linspace(1 / (2 * n_test), 1 - 1 / (2 * n_test), n_test)
     x_val = np.linspace(1 / (2 * n_val), 1 - 1 / (2 * n_val), n_val)
