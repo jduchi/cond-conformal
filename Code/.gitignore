@@ -1,2 +1,4 @@
+condconformal/*
+__pycache__/*
 foo.py
 *.npy

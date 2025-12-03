@@ -1,0 +1,359 @@
+\documentclass[landscape,a1,plainsections]{sciposter}
+
+%% ============== NeurIPS POSTER LATEX FILE =============== %%
+%  To compile: simply run
+%
+%  pdflatex nips_poster.tex
+%
+%  a few times. Note that this file *only* compiles correctly using pdflatex.
+
+\usepackage{present_defs}
+\usepackage{multicol}
+
+\definecolor{mydarkred}{rgb}{.5,0,.1}
+\definecolor{myroyalblue}{rgb}{0,.1,.8}
+
+\title{\textcolor{darkblue}{Sample-Conditional Coverage in
+    Conformal Prediction}}
+\author{John C.\ Duchi}
+\email{jduchi@stanford.edu}
+\institute{Stanford University}
+\leftlogo[1.1]{su_seal}
+% \rightlogo[.92]{../Images/nips_logo.jpeg}
+% \rightlogo{../Images/ucseal_540_139}
+%\conference{NIPS 2010}
+
+% Set the color used for the section headings here
+\definecolor{SectionCol}{rgb}{0,.06,.5}
+
+% Set some fbox commands line width and the color we use in the f boxes
+\setlength{\fboxrule}{.09cm}
+\definecolor{boxcolor}{rgb}{1,1,1}
+\definecolor{innerboxcolor}{rgb}{.9,.94,.98}
+
+\begin{document}
+
+\conference{Thirty-Ninth Annual Conference on Neural Information
+  Processing Systems, 2025, San Diego}
+\maketitle
+
+\begin{multicols*}{3}
+  \section*{Introduction and Problem Statement}
+
+  \textbf{Predictive Inference:}
+
+  \begin{itemize}
+  \item wish to predict outcome/target $Y$ from input $X$
+  \item want a \emph{confidence set} $\what{C}$ based
+    on $(X_i, Y_i)_{i=1}^n$ guaranteeing
+    \begin{align*}
+      \P\left(Y_{n + 1} \in \what{C}(X_{n + 1})\right) \ge 1 - \alpha
+    \end{align*}
+  \item standard approach: assume \emph{score function}
+    $s(x, y)$ and define
+    \begin{align*}
+      C_\tau(x) \defeq \left\{y \mid s(x, y) \le \tau \right\}
+    \end{align*}
+  \end{itemize}
+
+  \textbf{Example:} for regression problem with $f : \mc{X} \to \R$,
+  \begin{equation*}
+    s(x, y) = |f(x) - y|
+    ~~ \mbox{and} ~~
+    C_\tau(x) = \left[f(x) - \tau, f(x) + \tau \right]
+  \end{equation*}
+
+  \section*{Illustrative behaviors}
+  \textbf{Standard approach:}
+  \begin{itemize}
+  \item 
+  \end{itemize}
+  
+  \begin{tabular}{cc}
+    \begin{minipage}{.4\columnwidth}
+      \begin{equation*}
+        f_i(x) = \sum_{j \in S_i} \ell(x, a_j)
+      \end{equation*}
+    \end{minipage} &
+    \begin{minipage}{.6\columnwidth}
+      \begin{center}
+        \includegraphics[width=.7\columnwidth]{Images/shard_dataset}
+      \end{center}
+    \end{minipage}
+  \end{tabular}
+  \begin{itemize}
+    \item Robust regression: $a_j = (a, b)$ for $a \in \R^d$, $b \in
+      \R$. Loss $\ell(x, a_j) = |\<a, x\> - b|$.
+    \item SVM: $a_j = (a, b)$ for $b \in \{-1, +1\}$,
+      $a \in \R^d$. Loss $\ell(x, a_j) = \hinge{1 - b\<a, x\>}$.
+  \end{itemize}
+
+  \columnbreak
+  \section*{Dual Averaging Algorithm}
+
+  {\bf Centralized Dual Averaging} (Nesterov){\bf:} Solve single problem
+  \begin{equation*}
+    \min_{x \in \xdomain} ~ f(x)
+  \end{equation*}
+  Algorithm averages gradient (dual) vectors and updates primal
+  vector $x$. Let $\prox(x)$ be strongly convex
+  proximal function. For $g(t) \in \partial f(x(t))$, update
+  \begin{equation*}
+    z(t + 1) = z(t) + g(t)
+    ~~~~ \mbox{and} ~~~~
+    x(t + 1) = \argmin_{x \in \xdomain} \left\{ \<z(t + 1), x\>
+    + \frac{1}{\stepsize(t)} \prox(x) \right\}.
+  \end{equation*}
+
+  % \columnbreak
+
+  \section*{Distributed Dual Averaging}
+  % {\bf Distributing Dual Averaging:}
+  Let $\stochmat$ be doubly stochastic
+  matrix obeying graph ($\stochmat_{ij} > 0$ only if $(i, j) \in
+  \edge$). Node $i$ maintains
+  \begin{itemize}
+    \item Primal vector $x_i(t) \in \xdomain$
+    \item Dual vector $z_i(t) \in \R^d$.
+  \end{itemize}
+
+  \begin{tabular}{cc}
+    \begin{minipage}{.6\columnwidth}
+  \textcolor{mydarkred}{\bf Dual Update:} Local communication via
+  \begin{equation*}
+    z_i(t + 1) = \sum_j \textcolor{mydarkred}{\stochmat_{ji} z_j(t)} + g_i(t),
+    ~~~~ g_i(t) \in \partial f_i(x_i(t))
+  \end{equation*}
+  \textcolor{mydarkblue}{\bf Primal Update:} Local update parameter
+  \begin{equation*}
+    x_i(t + 1) = \argmin_{x \in \xdomain}
+    \left\{\textcolor{myroyalblue}{\<z_i(t + 1), x\>} + \frac{1}{\stepsize(t)} \prox(x) \right\}.
+  \end{equation*}
+    \end{minipage} &
+    \begin{minipage}{.4\columnwidth}
+      \includegraphics[width=.9\columnwidth]{Images/local_communication}
+    \end{minipage}
+  \end{tabular}
+  % \columnbreak
+
+  \section*{Main Results}
+
+  Make the following standard assumptions: norm $\norm{\cdot}$, dual
+  norm $\dnorm{\cdot}$,
+  \begin{equation*}
+    |f_i(x) - f_i(y)| \le L \norm{x - y}
+    ~~ \mbox{for} ~ x, y \in \xdomain
+  \end{equation*}
+  or, equivalently
+  $\dnorm{g} \le L ~~ \mbox{for} ~ g \in \partial f(x)$.
+  Define \textcolor{mydarkblue}{\emph{local average}}
+  \begin{equation*}
+    \what{x}_i(T)
+    = \frac{1}{T}\sum_{t=1}^T x_i(t).
+  \end{equation*}
+  Let $\sigma_i(\stochmat)$ denote the $i$th (largest) singular value of $\stochmat$.
+
+  \begin{center}
+    \fcolorbox{boxcolor}{innerboxcolor}{
+      \begin{minipage}{.95\columnwidth}
+        \begin{theorem}[\textcolor{mydarkred}{Spectral Gap Dependence}]
+          Optimization error is at most
+          \begin{equation*}
+            f(\what{x}_i(T)) - f(x^*)
+            = \order\left(\frac{L \sqrt{\prox(x^*)}}{\sqrt{T}} \cdot
+            \frac{1}{\textcolor{mydarkred}{\sqrt{1 - \sigma_2(\stochmat)}}}
+            \right).
+          \end{equation*}
+        \end{theorem}
+    \end{minipage}}
+  \end{center}
+
+  \vspace{.2cm}
+  Intimately related to convergence of random walk on graph, giving us
+
+  {\bf Examples:} \\
+  \begin{tabular}{cccc}
+    \hspace{-.7cm}
+    Cycle & \hspace{-.4cm} Grid & \hspace{-.4cm} Geometric &
+    \hspace{-.4cm}
+    Expander \\
+    \hspace{-.7cm}
+    \includegraphics[width=.25\columnwidth]{../Images/cycle} &
+    \hspace{-.4cm}
+    \includegraphics[width=.25\columnwidth]{../Images/grid} &
+    \hspace{-.4cm}
+    \includegraphics[width=.25\columnwidth]{../Images/rgg} &
+    \hspace{-.4cm}
+    \includegraphics[width=.25\columnwidth]{../Images/expander} \\
+    \hspace{-.7cm}
+    $\displaystyle{\frac{\textcolor{mydarkred}{{n}}}{\sqrt{T}}}$ &
+    \hspace{-.4cm}
+    $\displaystyle{\frac{\textcolor{mydarkred}{{\sqrt{n}}}}{\sqrt{T}}}$ &
+    \hspace{-.4cm}
+    $\displaystyle{\textcolor{mydarkred}{\sqrt{\frac{n}{\log n}}}\frac{1}{\sqrt{T}}}$ &
+    \hspace{-.4cm}
+    $\displaystyle{\frac{\textcolor{mydarkred}{\sqrt{\log n}}}{\sqrt{T}}}$
+  \end{tabular}
+
+  \vspace{1cm}
+  Algorithm is also robust to edge failures:
+
+  \begin{center}
+    \fcolorbox{boxcolor}{innerboxcolor}{
+      \begin{minipage}{.95\columnwidth}
+        \begin{theorem}[\textcolor{mydarkred}{Random
+              Communication}] When matrix $\stochmat$ is random at each time
+          $t$, with probability at least $1 - 1/T$
+          \begin{equation*}
+            f(\what{x}_i(T)) - f(x^*)
+            = \order\left(\frac{L \sqrt{\prox(x^*)}}{\sqrt{T}}
+            \cdot \frac{1}{\textcolor{mydarkred}{
+                \sqrt{1 - \sigma_2(\E[\stochmat^\top
+                  \stochmat])}}}\right).
+          \end{equation*}
+        \end{theorem}
+      \end{minipage}
+    }
+  \end{center}
+
+  \columnbreak
+
+  \section*{Analysis Ideas}
+
+  \begin{enumerate}
+  \item Relate to centralized procedure: look at evolution of average sequence
+    \begin{equation*}
+      \bar{z}(t)
+      \defeq \frac{1}{n} \sum_{i=1}^n z_i(t)
+      = \bar{z}(t - 1) + \ninv \sum_{i=1}^n g_i(t - 1)
+    \end{equation*}
+    and
+    \begin{equation*}
+      y(t) = \argmin_{x \in \xdomain} \left\{\<\bar{z}(t), x\>
+      + \frac{1}{\stepsize(t)} \prox(x)\right\}
+    \end{equation*}
+  \item Study optimization $f(y(t)) - f(x^*)$ and
+    network deviation error $x_i(t) - y(t)$
+  \end{enumerate}
+  %
+  \begin{align*}
+    \sum_{t=1}^T f(x_i(t)) - f(x^*)
+%%     & = \sum_{t=1}^T f(y(t)) - f(x^*) 
+%%     + \sum_{t=1}^T f(x_i(t)) - f(y(t)) \\
+    & \le \underbrace{\sum_{t=1}^T f(y(t)) - f(x^*)}_{
+      \mbox{\textcolor{myroyalblue}{Optimization}}}
+    + \underbrace{\sum_{t=1}^T
+      L \norm{x_i(t) - y(t)}}_{
+      \mbox{\textcolor{mydarkred}{Network deviation}}}
+  \end{align*}
+
+  \textcolor{myroyalblue}{{\bf First step:}} Show $y(t)$ converges with
+  \emph{centralized} dual averaging analysis.
+
+  \textcolor{mydarkred}{{\bf Second step:}} Control $x_i(t) - y(t)$ with
+    $z_i(t) - \bar{z}(t)$
+  \begin{itemize}
+  \item $z_i(t)$ has gradient $g_j(s)$ with weight
+    $[\stochmat^{t-s}]_{ji}$, $\bar{z}(t)$ has $g_j(s)$ with weight $\ninv$.
+  \item For large $t - s$, $\stochmat^{t - s} \approx \onevec \onevec^\top /
+    n$ since $\stochmat$ has stationary distribution $\onevec / n$.
+  \item Terms differ in $\bar{z}(t) - z_i(t)$ only for $t - s \le
+    \tmix(\stochmat)$.
+  \end{itemize}
+  Thus, control mixing time with \textcolor{mydarkred}{spectral gap
+    $(1 - \sigma_2(\stochmat))$} of the matrix $\stochmat$.
+
+%%  \begin{itemize}
+%%   \item Convergence of $y(t)$ handled using \emph{centralized} dual
+%%     averaging analysis.
+%%   \item Want to show $x_i(t)$ are close to $y(t)$. 
+%%   \item Suffices to show $z_i(t)$ close to $\bar{z}(t)$ (non-expansive
+%%     projections).
+%%   \item $z_i(t)$ includes $g_j(s)$ with a weight $[\stochmat^{t-s}]_{ij}$,
+%%     $\bar{z}(t)$ puts a weight $1/n$.
+%%   \item $P$ has a stationary distribution $1/n$, $\textcolor{mydarkred}{\stochmat^t\rightarrow
+%%     \frac{\onevec\onevec^T}{n}}$.
+%%   \item If $t-s > \tmix(\epsilon)$,
+%%     $\left|[\stochmat^{t-s}]_{ij}-\frac{1}{n}\right| \leq \epsilon$.
+%%   \item Gradients beyond mixing time are averaged almost correctly.
+%%   \item Only need to account for errors in a window of length mixing
+%%     time.
+%%   \item Can control the mixing time based on \textcolor{mydarkred}{spectral gap} of
+%%     the matrix $\stochmat$.
+%%   \end{itemize}
+
+%%   \begin{equation*}
+%%     \sum_{t=1}^T f(x_i(t)) - f(x^*)
+%%     = \sum_{t=1}^T \underbrace{f(y(t)) - f(x^*)}_{
+%%       \mbox{\textcolor{myroyalblue}{Optimization}}} + \sum_{t=1}^T
+%%     \underbrace{f(x_i(t)) -
+%%       f(y(t))}_{\mbox{\textcolor{mydarkred}{Network deviation}}} 
+%%   \end{equation*}
+%%   First step: use Lipschitz continuity
+%%   \begin{align*}
+%%     \sum_{t=1}^T f(x_i(t)) - f(x^*)
+%%     % = \sum_{t=1}^T f(y(t)) - f(x^*) + \sum_{t=1}^T f(x_i(t)) - f(y(t))
+%%     & \le \sum_{t=1}^T f(y(t)) - f(x^*) + \sum_{t=1}^T L \norm{x_i(t) - y(t)}
+%%   \end{align*}
+%%   and second step: use convexity
+%%   \begin{align*}
+%%     \sum_{t=1}^T f(y(t)) - f(x^*)
+%%     & \le \underbrace{
+%%       \sum_{t=1}^T \frac{1}{n} \sum_{j=1}^n \<g_j(t), y(t) - x^*\>}_{
+%%       \mbox{\textcolor{mydarkred}{Optimization}}}
+%%     + \underbrace{\sum_{t=1}^T \frac{L}{n} \sum_{j=1}^n \norm{x_j(t) - y(t)}}_{
+%%       \mbox{\textcolor{myroyalblue}{Network deviation}}}
+%%     % + \sum_{t=1}^T L \norm{x_i(t) - y(t)}
+%%   \end{align*}
+%%   Control \textcolor{mydarkred}{optimization} using dual
+%%   averaging~\cite{Nesterov09}.  To control \textcolor{myroyalblue}{network
+%%     deviation}, note that $z_i(t) \approx \bar{z}(t - \tau) + e$, for large
+%%   enough $\tau$ with $\dnorm{e} \le L \tau$. Simply set $\tau$ to be mixing
+%%   time of $\stochmat$. Gives
+%%   \begin{equation*}
+%%     \sum_{t=1}^T f(x_i(t)) - f(x^*)
+%%     \approx \order\left(\frac{\prox(x^*)}{\stepsize} + \stepsize TL^2
+%%     + \stepsize T L^2 \tmix(\stochmat)\right)
+%%   \end{equation*}
+
+  \section*{Simulations}
+
+  Define $T(\epsilon; n)$ to be time to reach $\epsilon$-accurate solution on
+  $n$-node problem. Compare predictions of $T(\epsilon; n)$ to actual results
+  on SVM problem:
+  \begin{equation*}
+    f(x) \defeq \ninv \sum_{i=1}^n \hinge{1 - \<a_i, x\>}
+  \end{equation*}
+
+  \begin{tabular}{ccc}
+    \hspace{-.8cm}
+    \includegraphics[width=.35\columnwidth]{../Images/regression_cycle_time} &
+    \hspace{-.3cm}
+    \includegraphics[width=.35\columnwidth]{../Images/regression_grid_time} &
+    \hspace{-.3cm}
+    \includegraphics[width=.35\columnwidth]{../Images/regression_expander_time} \\
+    \hspace{-.8cm} Cycle & \hspace{-.3cm} Grid & \hspace{-.3cm} Expander
+  \end{tabular}
+
+  Prediction (dotted black line) matches \textcolor{myroyalblue}{empirical
+    results} (blue lines).
+
+  \section*{Extensions}
+  \begin{enumerate}[1.]
+    \item Spectral-gap lower bound $T(\epsilon; n) = \Omega(1 / (1 -
+      \sigma_2(\stochmat)))$
+    \item Generalize algorithm to composite objectives
+      of the form
+      \begin{equation*}
+        \ninv \sum_{i=1}^n f_i(x) + \varphi(x)
+      \end{equation*}
+    \item Same results with stochastic gradients $g_i(t)$, where
+      $\E[g_i(t)] \in \partial f_i(x_i(t))$
+  \end{enumerate}
+  
+%%   \bibliographystyle{plain}
+%%   \bibliography{bib}
+
+\end{multicols*}
+
+\end{document}
